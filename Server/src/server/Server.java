@@ -1,10 +1,10 @@
 package server;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Server {
 
@@ -14,7 +14,7 @@ public class Server {
 
 		try {
 			Server server = new Server();
-			System.out.println("Aguardando conexão");
+			System.out.println("Aguardando conexão...");
 			server.criarServer(4589);
 			Socket socket = server.fazerConexao();
 			System.out.println("Conectado!");
@@ -35,17 +35,30 @@ public class Server {
 
 	public static void tratarConexao(Socket socket) {
 		try {
-			ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+			//ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+			//ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+			
+			//BufferedReader buf = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			
+			Scanner sc = new Scanner(socket.getInputStream());
+            
+			PrintStream out = new PrintStream(socket.getOutputStream());
+			
+			do{
+				String mensagem = sc.nextLine();
+				if(mensagem.equals("/sair")) {
+					System.out.println("O cliente desconetou-se");
+					break;
+				}
+				System.out.println("Cliente:" + mensagem.toString());
+			}while(true);
 
-			String mensagem = input.readUTF();
-			System.out.println("Cliente:" + mensagem);
-			output.writeUTF("Teste");
-			output.flush();
+			out.flush();
 
-			output.close();
-			input.close();
+			out.close();
+			sc.close();
 			fecharSocket(socket);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
